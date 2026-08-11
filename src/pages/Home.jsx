@@ -1,15 +1,12 @@
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
-import fortuneHand1 from '../assets/fortune-hand-1.webp'
-import fortuneHand2 from '../assets/fortune-hand-2.webp'
-import fortuneHand3 from '../assets/fortune-hand-3.webp'
 import { lazy, Suspense } from 'react'
 import FuzzyText from '../components/FuzzyText'
 
 // Lazy load ASCIIText to split Three.js into a separate chunk
 const ASCIIText = lazy(() => import('../components/ASCIIText'))
-// Lazy load DecayCard to split GSAP into a separate chunk (defers ~28KB gzip from initial load)
+// Lazy load DecayCard to split GSAP + card images into a separate chunk
 const DecayCard = lazy(() => import('../components/DecayCard'))
 
 const modeItems = [
@@ -265,7 +262,7 @@ export default function Home({ onSelect }) {
             <DecayCard
               width={200}
               height={280}
-              image={fortuneHand1}
+              image="fortune-hand-1"
               filterId="decay-filter-1"
               seed={3}
               maxDisplacement={260}
@@ -292,7 +289,7 @@ export default function Home({ onSelect }) {
             <DecayCard
               width={200}
               height={280}
-              image={fortuneHand3}
+              image="fortune-hand-3"
               filterId="decay-filter-2"
               seed={5}
               maxDisplacement={260}
@@ -319,7 +316,7 @@ export default function Home({ onSelect }) {
             <DecayCard
               width={200}
               height={280}
-              image={fortuneHand2}
+              image="fortune-hand-2"
               filterId="decay-filter-3"
               seed={7}
               maxDisplacement={260}

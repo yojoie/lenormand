@@ -9,6 +9,10 @@
   <!-- Resource hints for faster font loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Preload card images in parallel with JS chunks -->
+  <link rel="preload" as="image" href="/images/fortune-hand-1.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/fortune-hand-2.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="/images/fortune-hand-3.webp" fetchpriority="high" />
   <script type="module">
     if (import.meta.hot?.on) {
       import.meta.hot.on('vite:error', (error) => {

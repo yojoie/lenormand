@@ -3,10 +3,19 @@ import { gsap } from 'gsap';
 
 import './DecayCard.css';
 
+// Images are served from public/images/ for parallel preloading.
+// This avoids the sequential chain: main bundle → DecayCard chunk → image fetch.
+// Instead, images load in parallel with JS chunks via <link rel="preload"> in index.html.
+const cardImages = {
+  'fortune-hand-1': '/images/fortune-hand-1.webp',
+  'fortune-hand-2': '/images/fortune-hand-2.webp',
+  'fortune-hand-3': '/images/fortune-hand-3.webp',
+};
+
 const DecayCard = ({
   width = 300,
   height = 400,
-  image = 'https://picsum.photos/300/400?grayscale',
+  image = 'fortune-hand-1',
   baseFrequency = 0.015,
   numOctaves = 5,
   seed = 4,
@@ -191,7 +200,7 @@ const DecayCard = ({
         </filter>
         <g>
           <image
-            href={image}
+            href={cardImages[image] || image}
             x="0"
             y="0"
             width="600"

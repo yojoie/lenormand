@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import cloudImg from '../assets/image.png'
+import cloudImg from '../assets/cloud-texture.webp'
 
 export default function CloudSelector() {
   const containerRef = useRef(null)
