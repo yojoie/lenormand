@@ -1,13 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 
 import ClickSpark from './components/ClickSpark'
 import CloudEffect from './components/CloudEffect'
 import StarryBackground from './components/StarryBackground'
-import DailyLuck from './pages/DailyLuck'
 import Home from './pages/Home'
-import Trend from './pages/Trend'
-import YesNo from './pages/YesNo'
+// Lazy load non-home pages to reduce initial bundle size
+const DailyLuck = lazy(() => import('./pages/DailyLuck'))
+const YesNo = lazy(() => import('./pages/YesNo'))
+const Trend = lazy(() => import('./pages/Trend'))
 
 const modeMap = {
   home: Home,
@@ -15,6 +16,12 @@ const modeMap = {
   yesno: YesNo,
   trend: Trend,
 }
+
+const PageFallback = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+    <span style={{ color: 'rgba(196,181,253,0.6)', fontFamily: "'Noto Serif SC', serif", fontSize: '18px' }}>加载中…</span>
+  </div>
+)
 
 export default function App() {
   const [mode, setMode] = useState('home')
@@ -44,11 +51,13 @@ export default function App() {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
             >
-              <CurrentPage
-                onSelect={setMode}
-                onBack={() => setMode('home')}
-                onSave={() => { }}
-              />
+              <Suspense fallback={<PageFallback />}>
+                <CurrentPage
+                  onSelect={setMode}
+                  onBack={() => setMode('home')}
+                  onSave={() => { }}
+                />
+              </Suspense>
             </motion.div>
           </AnimatePresence>
         </div>

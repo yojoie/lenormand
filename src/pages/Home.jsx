@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
-import fortuneHand1 from '../assets/神秘学占卜手 (1).png'
-import fortuneHand2 from '../assets/神秘学占卜手 (2).png'
-import fortuneHand3 from '../assets/神秘学占卜手 (3).png'
-import ASCIIText from '../components/ASCIIText'
-import DecayCard from '../components/DecayCard'
+import fortuneHand1 from '../assets/fortune-hand-1.webp'
+import fortuneHand2 from '../assets/fortune-hand-2.webp'
+import fortuneHand3 from '../assets/fortune-hand-3.webp'
+import { lazy, Suspense } from 'react'
 import FuzzyText from '../components/FuzzyText'
+
+// Lazy load ASCIIText to split Three.js into a separate chunk
+const ASCIIText = lazy(() => import('../components/ASCIIText'))
+// Lazy load DecayCard to split GSAP into a separate chunk (defers ~28KB gzip from initial load)
+const DecayCard = lazy(() => import('../components/DecayCard'))
 
 const modeItems = [
   {
@@ -238,15 +242,17 @@ export default function Home({ onSelect }) {
           <motion.div className="hero-card__intro" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <p className="eyebrow home-page__eyebrow">LENORMAND DIVINATION</p>
             <div className="hero-card__title-wrapper">
-              <ASCIIText
-                text="雷诺曼占卜"
-                enableWaves={true}
-                asciiFontSize={6}
-                textFontSize={200}
-                planeBaseHeight={16}
-                textColor="#e8e4f0"
-                textFontFamily="'Noto Serif SC', 'IBM Plex Mono', serif"
-              />
+              <Suspense fallback={<div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: '48px', color: '#e8e4f0', opacity: 0.6 }}>雷诺曼占卜</span></div>}>
+                <ASCIIText
+                  text="雷诺曼占卜"
+                  enableWaves={true}
+                  asciiFontSize={6}
+                  textFontSize={200}
+                  planeBaseHeight={16}
+                  textColor="#e8e4f0"
+                  textFontFamily="'Noto Serif SC', 'IBM Plex Mono', serif"
+                />
+              </Suspense>
             </div>
             <p className="hero-card__text">
               <br />
@@ -254,89 +260,91 @@ export default function Home({ onSelect }) {
           </motion.div>
         </div>
 
-        <div className="mode-gallery decay-cards">
-          <DecayCard
-            width={200}
-            height={280}
-            image={fortuneHand1}
-            filterId="decay-filter-1"
-            seed={3}
-            maxDisplacement={260}
-            movementBound={28}
-            onClick={() => handleSelect('daily')}
-          >
-            <FuzzyText
-              fontSize={24}
-              fontWeight={700}
-              fontFamily="'Noto Serif SC', 'Inter', sans-serif"
-              color="#f3eeff"
-              baseIntensity={0.15}
-              hoverIntensity={0.5}
-              enableHover={true}
-              fuzzRange={10}
-              fps={60}
-              direction="horizontal"
-              letterSpacing={2}
-              className="fuzzy-card-text"
+        <Suspense fallback={<div className="mode-gallery decay-cards" style={{ minHeight: 280 }} />}>
+          <div className="mode-gallery decay-cards">
+            <DecayCard
+              width={200}
+              height={280}
+              image={fortuneHand1}
+              filterId="decay-filter-1"
+              seed={3}
+              maxDisplacement={260}
+              movementBound={28}
+              onClick={() => handleSelect('daily')}
             >
-              今日运势
-            </FuzzyText>
-          </DecayCard>
-          <DecayCard
-            width={200}
-            height={280}
-            image={fortuneHand3}
-            filterId="decay-filter-2"
-            seed={5}
-            maxDisplacement={260}
-            movementBound={28}
-            onClick={() => handleSelect('yesno')}
-          >
-            <FuzzyText
-              fontSize={24}
-              fontWeight={700}
-              fontFamily="'Noto Serif SC', 'Inter', sans-serif"
-              color="#f3eeff"
-              baseIntensity={0.15}
-              hoverIntensity={0.5}
-              enableHover={true}
-              fuzzRange={10}
-              fps={60}
-              direction="horizontal"
-              letterSpacing={2}
-              className="fuzzy-card-text"
+              <FuzzyText
+                fontSize={24}
+                fontWeight={700}
+                fontFamily="'Noto Serif SC', 'Inter', sans-serif"
+                color="#f3eeff"
+                baseIntensity={0.15}
+                hoverIntensity={0.5}
+                enableHover={true}
+                fuzzRange={10}
+                fps={60}
+                direction="horizontal"
+                letterSpacing={2}
+                className="fuzzy-card-text"
+              >
+                今日运势
+              </FuzzyText>
+            </DecayCard>
+            <DecayCard
+              width={200}
+              height={280}
+              image={fortuneHand3}
+              filterId="decay-filter-2"
+              seed={5}
+              maxDisplacement={260}
+              movementBound={28}
+              onClick={() => handleSelect('yesno')}
             >
-              是否占卜
-            </FuzzyText>
-          </DecayCard>
-          <DecayCard
-            width={200}
-            height={280}
-            image={fortuneHand2}
-            filterId="decay-filter-3"
-            seed={7}
-            maxDisplacement={260}
-            movementBound={28}
-            onClick={() => handleSelect('trend')}
-          >
-            <FuzzyText
-              fontSize={24}
-              fontWeight={700}
-              fontFamily="'Noto Serif SC', 'Inter', sans-serif"
-              color="#f3eeff"
-              baseIntensity={0.15}
-              hoverIntensity={0.5}
-              enableHover={true}
-              fuzzRange={10}
-              fps={60}
-              direction="horizontal"
-              letterSpacing={2}
-              className="fuzzy-card-text"
+              <FuzzyText
+                fontSize={24}
+                fontWeight={700}
+                fontFamily="'Noto Serif SC', 'Inter', sans-serif"
+                color="#f3eeff"
+                baseIntensity={0.15}
+                hoverIntensity={0.5}
+                enableHover={true}
+                fuzzRange={10}
+                fps={60}
+                direction="horizontal"
+                letterSpacing={2}
+                className="fuzzy-card-text"
+              >
+                是否占卜
+              </FuzzyText>
+            </DecayCard>
+            <DecayCard
+              width={200}
+              height={280}
+              image={fortuneHand2}
+              filterId="decay-filter-3"
+              seed={7}
+              maxDisplacement={260}
+              movementBound={28}
+              onClick={() => handleSelect('trend')}
             >
-              未来趋势
-            </FuzzyText>
-          </DecayCard>
-        </div>
+              <FuzzyText
+                fontSize={24}
+                fontWeight={700}
+                fontFamily="'Noto Serif SC', 'Inter', sans-serif"
+                color="#f3eeff"
+                baseIntensity={0.15}
+                hoverIntensity={0.5}
+                enableHover={true}
+                fuzzRange={10}
+                fps={60}
+                direction="horizontal"
+                letterSpacing={2}
+                className="fuzzy-card-text"
+              >
+                未来趋势
+              </FuzzyText>
+            </DecayCard>
+          </div>
+        </Suspense>
       </div>
     </>
   )

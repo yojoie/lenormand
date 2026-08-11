@@ -180,14 +180,18 @@ export default function StarryBackground() {
       animationId = window.requestAnimationFrame(renderFrame)
     }
 
-    resizeCanvas()
-    renderFrame()
-    window.addEventListener('resize', resizeCanvas)
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
-    window.addEventListener('pointerleave', handlePointerLeave)
+    // Defer initialization to allow first paint of main content
+    const startDelay = setTimeout(() => {
+      resizeCanvas()
+      renderFrame()
+      window.addEventListener('resize', resizeCanvas)
+      window.addEventListener('pointermove', handlePointerMove)
+      window.addEventListener('touchmove', handleTouchMove, { passive: true })
+      window.addEventListener('pointerleave', handlePointerLeave)
+    }, 100)
 
     return () => {
+      clearTimeout(startDelay)
       window.cancelAnimationFrame(animationId)
       window.removeEventListener('resize', resizeCanvas)
       window.removeEventListener('pointermove', handlePointerMove)
