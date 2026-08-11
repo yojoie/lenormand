@@ -1,0 +1,39 @@
+.text-loop {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.text-loop-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.text-loop-text {
+  user-select: none;
+}
+
+.text-loop-measure {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.text-loop--action {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.text-loop--action:hover {
+  opacity: 0.82;
+}
+
+.text-loop--action .text-loop-svg {
+  max-height: 180px;
+}

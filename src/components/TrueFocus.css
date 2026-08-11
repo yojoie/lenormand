@@ -1,0 +1,88 @@
+.focus-container {
+  position: relative;
+  display: flex;
+  gap: 0.15em;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  outline: none;
+  user-select: none;
+  margin: 8px 0 0;
+}
+
+.focus-word {
+  position: relative;
+  font-family: 'Noto Serif SC', 'Cinzel', serif;
+  font-size: clamp(34px, 4.6vw, 48px);
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition:
+    filter 0.3s ease,
+    color 0.3s ease;
+  outline: none;
+  user-select: none;
+  line-height: 1.08;
+}
+
+.focus-word.active {
+  filter: blur(0);
+}
+
+.focus-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  box-sizing: content-box;
+  border: none;
+}
+
+.corner {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 3px solid var(--border-color, #a78bfa);
+  filter: drop-shadow(0px 0px 4px var(--glow-color, rgba(167, 139, 250, 0.6)));
+  border-radius: 3px;
+  transition: none;
+}
+
+.top-left {
+  top: -8px;
+  left: -8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.top-right {
+  top: -8px;
+  right: -8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bottom-left {
+  bottom: -8px;
+  left: -8px;
+  border-right: none;
+  border-top: none;
+}
+
+.bottom-right {
+  bottom: -8px;
+  right: -8px;
+  border-left: none;
+  border-top: none;
+}
+
+@media (max-width: 768px) {
+  .focus-word {
+    font-size: clamp(30px, 8vw, 38px);
+  }
+
+  .corner {
+    width: 0.7rem;
+    height: 0.7rem;
+  }
+}
