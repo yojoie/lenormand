@@ -3,7 +3,7 @@
   white-space: nowrap;
   font-weight: 900;
   position: relative;
-  margin: 0 auto;
+  margin: 0;
   user-select: none;
   cursor: pointer;
 }

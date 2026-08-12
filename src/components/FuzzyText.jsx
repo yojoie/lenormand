@@ -44,6 +44,8 @@ const FuzzyText = ({
 
       try {
         await document.fonts.load(fontString);
+        // Also wait for all fonts to be ready to ensure canvas renders correctly
+        await document.fonts.ready;
       } catch {
         await document.fonts.ready;
       }
