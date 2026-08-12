@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const FuzzyText = ({
   children,
@@ -22,6 +22,7 @@ const FuzzyText = ({
   className = ''
 }) => {
   const canvasRef = useRef(null);
+  const [fontKey, setFontKey] = useState(0);
 
   useEffect(() => {
     let animationFrameId;
@@ -42,13 +43,35 @@ const FuzzyText = ({
       const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
       const fontString = `${fontWeight} ${fontSizeStr} ${computedFontFamily}`;
 
+      // Extract the primary font name (before any comma/fallback) for reliable checking
+      const primaryFontMatch = computedFontFamily.match(/['"]?([^'"`,]+)['"]?/);
+      const primaryFontName = primaryFontMatch ? primaryFontMatch[1].trim() : null;
+      const checkString = `${fontWeight} ${fontSizeStr} "${primaryFontName}"`;
+
+      // Try to load the font; if not ready, listen for the loadingdone event
       try {
         await document.fonts.load(fontString);
-        // Also wait for all fonts to be ready to ensure canvas renders correctly
-        await document.fonts.ready;
       } catch {
-        await document.fonts.ready;
+        // ignore
       }
+
+      // Check if the PRIMARY font (not fallback) is actually loaded
+      if (primaryFontName && !document.fonts.check(checkString)) {
+        // Font not ready yet - render anyway as fallback, but listen for when it loads
+        const onLoadingDone = () => {
+          if (document.fonts.check(checkString)) {
+            document.fonts.removeEventListener('loadingdone', onLoadingDone);
+            setFontKey(k => k + 1); // Trigger re-render with correct font
+          }
+        };
+        document.fonts.addEventListener('loadingdone', onLoadingDone);
+        // Safety timeout: re-render after 3s regardless
+        setTimeout(() => {
+          document.fonts.removeEventListener('loadingdone', onLoadingDone);
+          setFontKey(k => k + 1);
+        }, 3000);
+      }
+
       if (isCancelled) return;
 
       let numericFontSize;
@@ -326,6 +349,7 @@ const FuzzyText = ({
       }
     };
   }, [
+    fontKey,
     children,
     fontSize,
     fontWeight,
