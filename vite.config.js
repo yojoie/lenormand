@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
   build: {
@@ -35,11 +34,6 @@ export default defineConfig({
         plugins: ['react-dev-locator'],
       },
     }),
-    // Generate .gz files for all assets
-    viteCompression({
-      algorithm: 'gzip',
-      ext: '.gz',
-      threshold: 10240, // only compress files > 10KB
-    }),
+    // Note: gzip compression is handled automatically by Cloudflare's edge network
   ],
 })
