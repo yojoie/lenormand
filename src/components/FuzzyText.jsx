@@ -22,7 +22,7 @@ const FuzzyText = ({
   className = ''
 }) => {
   const canvasRef = useRef(null);
-  const [fontKey, setFontKey] = useState(0);
+  const [fontReady, setFontReady] = useState(false);
 
   useEffect(() => {
     let animationFrameId;
@@ -30,8 +30,6 @@ const FuzzyText = ({
     let glitchTimeoutId;
     let glitchEndTimeoutId;
     let clickTimeoutId;
-    let fontPollId;
-    let fontCheckTimeoutId;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -45,76 +43,42 @@ const FuzzyText = ({
       const fontSizeStr = typeof fontSize === 'number' ? `${fontSize}px` : fontSize;
       const fontString = `${fontWeight} ${fontSizeStr} ${computedFontFamily}`;
 
-      // Extract the primary font name (before any comma/fallback) for reliable checking
+      // Extract the primary font name (before any comma/fallback)
       const primaryFontMatch = computedFontFamily.match(/['"]?([^'"`,]+)['"]?/);
       const primaryFontName = primaryFontMatch ? primaryFontMatch[1].trim() : null;
 
-      // Robustly check if the primary FontFace is declared AND loaded.
-      // document.fonts.check() is unreliable: it returns true when no @font-face
-      // exists (e.g. Google Fonts CSS still downloading), because the browser
-      // thinks "no font load needed".  Iterating FontFace objects is accurate.
-      const isPrimaryFontReady = () => {
+      // Detect if the primary font is actually loaded by comparing canvas
+      // text widths: if the primary font is available, its metrics will differ
+      // from the fallback (monospace).  This is more reliable than
+      // document.fonts.check() (which returns true when no @font-face exists)
+      // and document.fonts.forEach() (which may miss multi-range CJK fonts).
+      const isFontLoaded = () => {
         if (!primaryFontName) return true;
-        const target = primaryFontName.toLowerCase().trim();
-        let found = false;
-        document.fonts.forEach(face => {
-          if (face.family.toLowerCase().trim() === target && face.status === 'loaded') {
-            found = true;
-          }
-        });
-        return found;
+        const test = document.createElement('canvas').getContext('2d');
+        if (!test) return true;
+        const sample = '测字试';
+        test.font = `${fontWeight} ${fontSizeStr} "${primaryFontName}", monospace`;
+        const w1 = test.measureText(sample).width;
+        test.font = `${fontWeight} ${fontSizeStr} monospace`;
+        const w2 = test.measureText(sample).width;
+        return Math.abs(w1 - w2) > 0.5;
       };
 
-      // Try to load the font using the PRIMARY font name only (no fallbacks).
-      // Using the full fontString with fallbacks can cause load() to resolve
-      // with a fallback font instead of the actual font.
+      // Wait for the font to be loaded (max 5 seconds).
+      // Each iteration retries document.fonts.load() to trigger the
+      // download once the @font-face is declared.
       const primaryFontString = `${fontWeight} ${fontSizeStr} "${primaryFontName}"`;
-      try {
-        await document.fonts.load(primaryFontString);
-      } catch {
-        // ignore
-      }
-
-      // If the primary font isn't ready yet, set up a polling + event listener
-      // to re-render the canvas once the font is actually loaded.
-      if (!isPrimaryFontReady()) {
-        const onLoadingDone = () => {
-          if (isPrimaryFontReady()) {
-            cleanupFontWait();
-            setFontKey(k => k + 1);
-          }
-        };
-
-        const cleanupFontWait = () => {
-          document.fonts.removeEventListener('loadingdone', onLoadingDone);
-          if (fontPollId) clearInterval(fontPollId);
-          clearTimeout(fontCheckTimeoutId);
-        };
-
-        document.fonts.addEventListener('loadingdone', onLoadingDone);
-
-        // Poll every 300ms: handles the case where @font-face hasn't been
-        // declared yet (Google Fonts CSS still downloading). Each poll also
-        // retries document.fonts.load() to trigger the download once the
-        // @font-face is available.
-        fontPollId = setInterval(() => {
-          if (isPrimaryFontReady()) {
-            cleanupFontWait();
-            setFontKey(k => k + 1);
-          } else {
-            // Re-trigger load in case @font-face was just declared
-            document.fonts.load(primaryFontString).catch(() => {});
-          }
-        }, 300);
-
-        // Safety timeout: force re-render after 5s regardless
-        fontCheckTimeoutId = setTimeout(() => {
-          cleanupFontWait();
-          setFontKey(k => k + 1);
-        }, 5000);
+      const startTime = Date.now();
+      while (!isFontLoaded() && Date.now() - startTime < 5000) {
+        try { await document.fonts.load(primaryFontString); } catch { /* ignore */ }
+        if (isCancelled) return;
+        await new Promise(r => setTimeout(r, 200));
       }
 
       if (isCancelled) return;
+
+      // Font is ready (or timeout) — show canvas, hide HTML fallback
+      setFontReady(true);
 
       let numericFontSize;
       if (typeof fontSize === 'number') {
@@ -386,14 +350,11 @@ const FuzzyText = ({
       clearTimeout(glitchTimeoutId);
       clearTimeout(glitchEndTimeoutId);
       clearTimeout(clickTimeoutId);
-      if (fontPollId) clearInterval(fontPollId);
-      clearTimeout(fontCheckTimeoutId);
       if (canvas && canvas.cleanupFuzzyText) {
         canvas.cleanupFuzzyText();
       }
     };
   }, [
-    fontKey,
     children,
     fontSize,
     fontWeight,
@@ -414,7 +375,26 @@ const FuzzyText = ({
     letterSpacing
   ]);
 
-  return <canvas ref={canvasRef} className={className} />;
+  return (
+    <>
+      <canvas ref={canvasRef} className={className} style={{ display: fontReady ? '' : 'none' }} />
+      {!fontReady && (
+        <span
+          className={className}
+          style={{
+            fontFamily: fontFamily === 'inherit' ? undefined : fontFamily,
+            fontWeight,
+            fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
+            color,
+            lineHeight: 1,
+            display: 'inline-block',
+          }}
+        >
+          {children}
+        </span>
+      )}
+    </>
+  );
 };
 
 export default FuzzyText;
