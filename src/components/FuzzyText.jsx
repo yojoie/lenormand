@@ -65,9 +65,12 @@ const FuzzyText = ({
         return found;
       };
 
-      // Try to load the font (works once @font-face is declared)
+      // Try to load the font using the PRIMARY font name only (no fallbacks).
+      // Using the full fontString with fallbacks can cause load() to resolve
+      // with a fallback font instead of the actual font.
+      const primaryFontString = `${fontWeight} ${fontSizeStr} "${primaryFontName}"`;
       try {
-        await document.fonts.load(fontString);
+        await document.fonts.load(primaryFontString);
       } catch {
         // ignore
       }
@@ -100,7 +103,7 @@ const FuzzyText = ({
             setFontKey(k => k + 1);
           } else {
             // Re-trigger load in case @font-face was just declared
-            document.fonts.load(fontString).catch(() => {});
+            document.fonts.load(primaryFontString).catch(() => {});
           }
         }, 300);
 

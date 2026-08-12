@@ -215,6 +215,15 @@ export default function Home({ onSelect }) {
     []
   )
 
+  // Pre-load card title font while the DecayCard lazy chunk is downloading.
+  // This ensures the font is ready (or nearly ready) by the time FuzzyText
+  // mounts, so all three cards render with the correct font on first paint.
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.load('700 24px "Noto Serif SC"').catch(() => {})
+    }
+  }, [])
+
   const handleSelect = (modeKey) => {
     if (transitionMode) return
     onSelect(modeKey)
