@@ -30,6 +30,8 @@ const FuzzyText = ({
     let glitchTimeoutId;
     let glitchEndTimeoutId;
     let clickTimeoutId;
+    let fontPollId;
+    let fontCheckTimeoutId;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -46,30 +48,67 @@ const FuzzyText = ({
       // Extract the primary font name (before any comma/fallback) for reliable checking
       const primaryFontMatch = computedFontFamily.match(/['"]?([^'"`,]+)['"]?/);
       const primaryFontName = primaryFontMatch ? primaryFontMatch[1].trim() : null;
-      const checkString = `${fontWeight} ${fontSizeStr} "${primaryFontName}"`;
 
-      // Try to load the font; if not ready, listen for the loadingdone event
+      // Robustly check if the primary FontFace is declared AND loaded.
+      // document.fonts.check() is unreliable: it returns true when no @font-face
+      // exists (e.g. Google Fonts CSS still downloading), because the browser
+      // thinks "no font load needed".  Iterating FontFace objects is accurate.
+      const isPrimaryFontReady = () => {
+        if (!primaryFontName) return true;
+        const target = primaryFontName.toLowerCase().trim();
+        let found = false;
+        document.fonts.forEach(face => {
+          if (face.family.toLowerCase().trim() === target && face.status === 'loaded') {
+            found = true;
+          }
+        });
+        return found;
+      };
+
+      // Try to load the font (works once @font-face is declared)
       try {
         await document.fonts.load(fontString);
       } catch {
         // ignore
       }
 
-      // Check if the PRIMARY font (not fallback) is actually loaded
-      if (primaryFontName && !document.fonts.check(checkString)) {
-        // Font not ready yet - render anyway as fallback, but listen for when it loads
+      // If the primary font isn't ready yet, set up a polling + event listener
+      // to re-render the canvas once the font is actually loaded.
+      if (!isPrimaryFontReady()) {
         const onLoadingDone = () => {
-          if (document.fonts.check(checkString)) {
-            document.fonts.removeEventListener('loadingdone', onLoadingDone);
-            setFontKey(k => k + 1); // Trigger re-render with correct font
+          if (isPrimaryFontReady()) {
+            cleanupFontWait();
+            setFontKey(k => k + 1);
           }
         };
-        document.fonts.addEventListener('loadingdone', onLoadingDone);
-        // Safety timeout: re-render after 3s regardless
-        setTimeout(() => {
+
+        const cleanupFontWait = () => {
           document.fonts.removeEventListener('loadingdone', onLoadingDone);
+          if (fontPollId) clearInterval(fontPollId);
+          clearTimeout(fontCheckTimeoutId);
+        };
+
+        document.fonts.addEventListener('loadingdone', onLoadingDone);
+
+        // Poll every 300ms: handles the case where @font-face hasn't been
+        // declared yet (Google Fonts CSS still downloading). Each poll also
+        // retries document.fonts.load() to trigger the download once the
+        // @font-face is available.
+        fontPollId = setInterval(() => {
+          if (isPrimaryFontReady()) {
+            cleanupFontWait();
+            setFontKey(k => k + 1);
+          } else {
+            // Re-trigger load in case @font-face was just declared
+            document.fonts.load(fontString).catch(() => {});
+          }
+        }, 300);
+
+        // Safety timeout: force re-render after 5s regardless
+        fontCheckTimeoutId = setTimeout(() => {
+          cleanupFontWait();
           setFontKey(k => k + 1);
-        }, 3000);
+        }, 5000);
       }
 
       if (isCancelled) return;
@@ -344,6 +383,8 @@ const FuzzyText = ({
       clearTimeout(glitchTimeoutId);
       clearTimeout(glitchEndTimeoutId);
       clearTimeout(clickTimeoutId);
+      if (fontPollId) clearInterval(fontPollId);
+      clearTimeout(fontCheckTimeoutId);
       if (canvas && canvas.cleanupFuzzyText) {
         canvas.cleanupFuzzyText();
       }
