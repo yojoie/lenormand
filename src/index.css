@@ -21,8 +21,8 @@
   --panel-bg: linear-gradient(145deg, rgba(18, 12, 40, 0.82), rgba(8, 6, 20, 0.62));
   --panel-border: rgba(124, 58, 237, 0.12);
   --panel-shadow: 0 18px 60px rgba(4, 2, 16, 0.48), 0 0 0 1px rgba(124, 58, 237, 0.04);
-  --card-width: 160px;
-  --card-height: 250px;
+  --card-width: 120px;
+  --card-height: 200px;
   font-family: 'Inter', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -837,6 +837,8 @@ body {
   min-height: 0;
   margin: -60px auto 0;
   z-index: 1;
+  --card-width: 160px;
+  --card-height: 250px;
 }
 
 .decay-cards {
@@ -2835,8 +2837,8 @@ body {
 
 @media (max-width: 1024px) {
   :root {
-    --card-width: 135px;
-    --card-height: 215px;
+    --card-width: 100px;
+    --card-height: 170px;
   }
 
   .app-shell__content {
@@ -2878,12 +2880,17 @@ body {
   .manual-spread__card--rail {
     margin-left: calc(var(--card-width) * -0.82);
   }
+
+  .mode-gallery {
+    --card-width: 135px;
+    --card-height: 215px;
+  }
 }
 
 @media (max-width: 768px) {
   :root {
-    --card-width: 125px;
-    --card-height: 195px;
+    --card-width: 90px;
+    --card-height: 150px;
   }
 
   .hero-card,
@@ -3062,6 +3069,11 @@ body {
 
   .card-layout--timeline {
     flex-direction: column;
+  }
+
+  .mode-gallery {
+    --card-width: 125px;
+    --card-height: 195px;
   }
 }
 
