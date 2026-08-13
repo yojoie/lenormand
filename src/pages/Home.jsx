@@ -3,9 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 
 import { lazy, Suspense } from 'react'
 import FuzzyText from '../components/FuzzyText'
+import MaskedHeading from '../components/MaskedHeading'
 
-// Lazy load ASCIIText to split Three.js into a separate chunk
-const ASCIIText = lazy(() => import('../components/ASCIIText'))
 // Lazy load DecayCard to split GSAP + card images into a separate chunk
 const DecayCard = lazy(() => import('../components/DecayCard'))
 
@@ -246,23 +245,28 @@ export default function Home({ onSelect }) {
           </div>
 
           <motion.div className="hero-card__intro" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <p className="eyebrow home-page__eyebrow">LENORMAND DIVINATION</p>
             <div className="hero-card__title-wrapper">
-              <Suspense fallback={<div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: '48px', color: '#e8e4f0', opacity: 0.6 }}>雷诺曼占卜</span></div>}>
-                <ASCIIText
-                  text="雷诺曼占卜"
-                  enableWaves={true}
-                  asciiFontSize={6}
-                  textFontSize={200}
-                  planeBaseHeight={16}
-                  textColor="#e8e4f0"
-                  textFontFamily="'Noto Serif SC', 'IBM Plex Mono', serif"
-                />
-              </Suspense>
+              <MaskedHeading
+                text="LENORMAND DIVINATION"
+                src="/images/fortune-hand-1.webp"
+                fillScale={1.3}
+                parallax={26}
+                drift={18}
+                reveal="rise"
+                trigger="view"
+                duration={1.1}
+                stagger={0.12}
+                textScale={0.095}
+                lineHeight={1.23}
+                weight={700}
+                tracking={0.07}
+                align="left"
+                className="hero-masked-heading"
+                strokeColor="rgba(0,0,0,0.85)"
+                strokeWidth={1.5}
+                strokeWordIndex={1}
+              />
             </div>
-            <p className="hero-card__text">
-              <br />
-            </p>
           </motion.div>
         </div>
 

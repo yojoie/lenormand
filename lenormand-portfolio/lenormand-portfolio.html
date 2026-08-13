@@ -262,25 +262,27 @@ section { padding: 5rem 0; position: relative; }
 /* ========================================
    Gallery
    ======================================== */
-.gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.gallery { display: grid; grid-template-columns: 1fr; gap: 2rem; }
 .gallery__item {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--card-border);
   background: var(--bg2);
-  transition: transform 0.4s ease, border-color 0.3s ease;
+  transition: transform 0.4s ease, border-color 0.3s ease, box-shadow 0.4s ease;
   position: relative;
 }
 .gallery__item:hover {
   transform: translateY(-4px);
   border-color: rgba(124, 58, 237, 0.35);
+  box-shadow: 0 12px 48px rgba(124, 58, 237, 0.15);
 }
 .gallery__item img {
   width: 100%;
   display: block;
-  aspect-ratio: 9 / 16;
+  height: auto;
+  max-height: 900px;
   object-fit: cover;
-  object-position: top;
+  object-position: top center;
 }
 .gallery__caption {
   padding: 1rem 1.25rem;
@@ -537,6 +539,257 @@ footer a:hover { text-decoration: underline; }
 .reveal-4 { animation-delay: 0.7s; }
 
 /* ========================================
+   Interactive Demo
+   ======================================== */
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+.demo-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
+}
+.demo-card__title {
+  font-family: var(--font-cn);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--ink);
+}
+.demo-card__desc {
+  font-size: 0.82rem;
+  color: var(--dim);
+  margin-bottom: 1.5rem;
+}
+.demo-stage {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(7, 4, 15, 0.5);
+  border: 1px solid rgba(124, 58, 237, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+  outline: none;
+}
+.demo-btn:hover {
+  background: rgba(124, 58, 237, 0.2);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.25);
+  transform: translateY(-1px);
+}
+.demo-btn:active { transform: translateY(0); }
+.demo-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* --- Shuffle Cards --- */
+.shuffle-container { display: flex; gap: 8px; justify-content: center; }
+.shuffle-card {
+  width: 54px; height: 78px;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #2d1b4e, #1a1032);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+.shuffle-card::after {
+  content: '✦';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(167, 139, 250, 0.4);
+  font-size: 1.2rem;
+}
+.shuffle-card.shuffling {
+  animation: shuffleAnim 0.8s ease-in-out;
+}
+@keyframes shuffleAnim {
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  25% { transform: translateY(-30px) rotate(-15deg) scale(0.9); }
+  50% { transform: translateY(-15px) rotate(10deg) translateX(20px) scale(0.85); }
+  75% { transform: translateY(-20px) rotate(-5deg) translateX(-15px) scale(0.9); }
+  100% { transform: translateY(0) rotate(0) scale(1); }
+}
+.shuffle-card.shuffling:nth-child(2) { animation-delay: 0.1s; }
+.shuffle-card.shuffling:nth-child(3) { animation-delay: 0.2s; }
+.shuffle-card.shuffling:nth-child(4) { animation-delay: 0.1s; }
+.shuffle-card.shuffling:nth-child(5) { animation-delay: 0.05s; }
+
+/* --- 3D Card Flip --- */
+.flip-stage { perspective: 800px; }
+.flip-card {
+  width: 90px; height: 130px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.flip-card.flipped { transform: rotateY(180deg); }
+.flip-card__face {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 8px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+.flip-card__back {
+  background: linear-gradient(145deg, #2d1b4e, #1a1032);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.2);
+}
+.flip-card__back::after {
+  content: '✦';
+  font-size: 1.5rem;
+  color: rgba(167, 139, 250, 0.35);
+}
+.flip-card__front {
+  background: linear-gradient(145deg, #dbeafe, #bfdbfe, #93c5fd);
+  transform: rotateY(180deg);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+}
+.flip-card__symbol {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+.flip-card__keyword {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e3a5f;
+}
+.flip-card__number {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(30, 58, 95, 0.5);
+  margin-top: 0.15rem;
+}
+
+/* --- Glitch Text --- */
+.glitch-stage { position: relative; }
+.glitch-text {
+  font-family: var(--font-cn);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  position: relative;
+  letter-spacing: 0.1em;
+}
+.glitch-text.glitching::before,
+.glitch-text.glitching::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.glitch-text.glitching::before {
+  color: #3b82f6;
+  animation: glitchTop 0.4s steps(4) infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+}
+.glitch-text.glitching::after {
+  color: #ec4899;
+  animation: glitchBottom 0.4s steps(4) infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+}
+@keyframes glitchTop {
+  0% { transform: translate(0); }
+  25% { transform: translate(-3px, -2px); }
+  50% { transform: translate(3px, 1px); }
+  75% { transform: translate(-2px, 2px); }
+  100% { transform: translate(0); }
+}
+@keyframes glitchBottom {
+  0% { transform: translate(0); }
+  25% { transform: translate(3px, 2px); }
+  50% { transform: translate(-3px, -1px); }
+  75% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* --- Decrypt Text --- */
+.decrypt-stage { font-family: var(--font-mono); }
+.decrypt-text {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--accent3);
+  letter-spacing: 0.08em;
+  min-height: 2rem;
+}
+.decrypt-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.2em;
+  background: var(--accent3);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 0.6s steps(2) infinite;
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* --- Card Draw Animation --- */
+.draw-stage { position: relative; width: 100%; height: 140px; }
+.draw-card {
+  position: absolute;
+  width: 54px; height: 78px;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #2d1b4e, #1a1032);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+.draw-card::after {
+  content: '✦';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(167, 139, 250, 0.4);
+  font-size: 1.2rem;
+}
+.draw-card.drawn {
+  background: linear-gradient(145deg, #dbeafe, #bfdbfe, #93c5fd);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+.draw-card.drawn::after {
+  content: '☀';
+  color: #1e3a5f;
+  font-size: 1.4rem;
+}
+.draw-card.spread-0 { transform: translate(-50%, -50%) translateX(-80px) rotate(-8deg); }
+.draw-card.spread-1 { transform: translate(-50%, -50%) translateX(0) rotate(0); }
+.draw-card.spread-2 { transform: translate(-50%, -50%) translateX(80px) rotate(8deg); }
+
+/* ========================================
    Responsive
    ======================================== */
 @media (max-width: 768px) {
@@ -551,6 +804,7 @@ footer a:hover { text-decoration: underline; }
   .type-row__label { min-width: auto; }
   .review { padding: 1.5rem; }
   .review__header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .demo-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -664,16 +918,16 @@ footer a:hover { text-decoration: underline; }
 
     <div class="gallery">
       <div class="gallery__item">
-        <img src="assets/home-screenshot.png" alt="首页截图" loading="lazy">
+        <img src="assets/home-desktop.png" alt="首页桌面端截图" loading="lazy">
         <div class="gallery__caption">
-          <p class="gallery__caption-title">首页 · 品牌入口</p>
+          <p class="gallery__caption-title">首页 · 品牌入口（桌面端 1280px）</p>
           <p class="gallery__caption-text">Three.js 驱动的 ASCII 像素标题 + GSAP 晕染卡牌入口，底部云层贴合屏幕底边形成视觉锚点。</p>
         </div>
       </div>
       <div class="gallery__item">
-        <img src="assets/daily-screenshot.png" alt="今日运势页面截图" loading="lazy">
+        <img src="assets/daily-desktop.png" alt="今日运势桌面端截图" loading="lazy">
         <div class="gallery__caption">
-          <p class="gallery__caption-title">今日运势 · 抽牌选择</p>
+          <p class="gallery__caption-title">今日运势 · 抽牌选择（桌面端 1280px）</p>
           <p class="gallery__caption-text">GlitchText 故障标题 + 楷体引导文案，自动/手动抽取按钮通过 SpecularButton 高光描边强化仪式感。</p>
         </div>
       </div>
@@ -685,11 +939,97 @@ footer a:hover { text-decoration: underline; }
         </div>
       </div>
       <div class="gallery__item">
-        <img src="assets/trend-screenshot.png" alt="未来趋势页面截图" loading="lazy">
+        <img src="assets/trend-desktop.png" alt="未来趋势桌面端截图" loading="lazy">
         <div class="gallery__caption">
-          <p class="gallery__caption-title">未来趋势 · 时间线牌阵</p>
+          <p class="gallery__caption-title">未来趋势 · 时间线牌阵（桌面端 1280px）</p>
           <p class="gallery__caption-text">过去/现在/未来三牌横向排列，移动端自动切换为纵向单列，结果详情使用 grid-template-columns: 1fr 控制。</p>
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================
+     INTERACTIVE DEMO
+     ======================================== -->
+<section>
+  <div class="container">
+    <div class="section-header">
+      <p class="section-header__label">INTERACTIVE DEMO</p>
+      <h2 class="section-header__title">交互动效演示</h2>
+      <p class="section-header__desc">
+        以下四个交互效果使用纯 CSS + JavaScript 在作品集内实时渲染，点击按钮即可触发。它们复刻了线上站点中 Shuffle 洗牌、Card 翻牌、GlitchText 故障标题、DecryptedText 解密动画的核心视觉行为。
+      </p>
+    </div>
+
+    <div class="demo-grid">
+      <!-- Shuffle Demo -->
+      <div class="demo-card">
+        <h3 class="demo-card__title">Shuffle 洗牌动画</h3>
+        <p class="demo-card__desc">5 张牌背卡随机弹跳旋转，持续 0.8s，模拟物理洗牌手感</p>
+        <div class="demo-stage">
+          <div class="shuffle-container" id="shuffleContainer">
+            <div class="shuffle-card"></div>
+            <div class="shuffle-card"></div>
+            <div class="shuffle-card"></div>
+            <div class="shuffle-card"></div>
+            <div class="shuffle-card"></div>
+          </div>
+        </div>
+        <button class="demo-btn" id="shuffleBtn">▶ 开始洗牌</button>
+      </div>
+
+      <!-- Card Flip Demo -->
+      <div class="demo-card">
+        <h3 class="demo-card__title">Card 3D 翻牌</h3>
+        <p class="demo-card__desc">点击卡牌触发 rotateY(180deg) 翻转，正面显示太阳牌关键词</p>
+        <div class="demo-stage flip-stage">
+          <div class="flip-card" id="flipCard">
+            <div class="flip-card__face flip-card__back"></div>
+            <div class="flip-card__face flip-card__front">
+              <span class="flip-card__symbol">☀</span>
+              <span class="flip-card__keyword">太阳</span>
+              <span class="flip-card__number">No.31</span>
+            </div>
+          </div>
+        </div>
+        <button class="demo-btn" id="flipBtn">▶ 翻转卡牌</button>
+      </div>
+
+      <!-- Glitch Text Demo -->
+      <div class="demo-card">
+        <h3 class="demo-card__title">GlitchText 故障标题</h3>
+        <p class="demo-card__desc">RGB 三通道分离 + clip-path 裁切，模拟信号干扰效果</p>
+        <div class="demo-stage glitch-stage">
+          <span class="glitch-text" id="glitchText" data-text="今日运势">今日运势</span>
+        </div>
+        <button class="demo-btn" id="glitchBtn">▶ 触发故障</button>
+      </div>
+
+      <!-- Decrypt Text Demo -->
+      <div class="demo-card">
+        <h3 class="demo-card__title">DecryptedText 解密动画</h3>
+        <p class="demo-card__desc">字符逐位从随机符号收敛至目标文字，模拟星图信号解码</p>
+        <div class="demo-stage decrypt-stage">
+          <span class="decrypt-text" id="decryptText"></span><span class="decrypt-cursor" id="decryptCursor"></span>
+        </div>
+        <button class="demo-btn" id="decryptBtn">▶ 开始解密</button>
+      </div>
+    </div>
+
+    <!-- Card Draw Sequence Demo -->
+    <div style="margin-top: 2rem;">
+      <div class="demo-card">
+        <h3 class="demo-card__title">抽牌流程 · 三牌展开</h3>
+        <p class="demo-card__desc">模拟事件趋势页面的抽牌序列：叠牌 → 展开 → 翻面，展示过去/现在/未来</p>
+        <div class="demo-stage" style="min-height: 200px;">
+          <div class="draw-stage" id="drawStage">
+            <div class="draw-card" data-index="0"></div>
+            <div class="draw-card" data-index="1"></div>
+            <div class="draw-card" data-index="2"></div>
+          </div>
+        </div>
+        <button class="demo-btn" id="drawBtn">▶ 开始抽牌</button>
       </div>
     </div>
   </div>
@@ -1043,6 +1383,140 @@ footer a:hover { text-decoration: underline; }
 </footer>
 
 </div>
+
+<script>
+(function() {
+  'use strict';
+
+  // --- Shuffle Animation ---
+  var shuffleBtn = document.getElementById('shuffleBtn');
+  var shuffleCards = document.querySelectorAll('#shuffleContainer .shuffle-card');
+  shuffleBtn.addEventListener('click', function() {
+    shuffleBtn.disabled = true;
+    shuffleCards.forEach(function(card) {
+      card.classList.remove('shuffling');
+      void card.offsetWidth;
+      card.classList.add('shuffling');
+    });
+    setTimeout(function() {
+      shuffleCards.forEach(function(card) { card.classList.remove('shuffling'); });
+      shuffleBtn.disabled = false;
+    }, 1000);
+  });
+
+  // --- Card Flip ---
+  var flipCard = document.getElementById('flipCard');
+  var flipBtn = document.getElementById('flipBtn');
+  flipBtn.addEventListener('click', function() {
+    flipCard.classList.toggle('flipped');
+  });
+  flipCard.addEventListener('click', function() {
+    flipCard.classList.toggle('flipped');
+  });
+
+  // --- Glitch Text ---
+  var glitchText = document.getElementById('glitchText');
+  var glitchBtn = document.getElementById('glitchBtn');
+  var glitchTimer = null;
+  glitchBtn.addEventListener('click', function() {
+    glitchBtn.disabled = true;
+    glitchText.classList.add('glitching');
+    clearTimeout(glitchTimer);
+    glitchTimer = setTimeout(function() {
+      glitchText.classList.remove('glitching');
+      glitchBtn.disabled = false;
+    }, 1600);
+  });
+
+  // --- Decrypt Text ---
+  var decryptBtn = document.getElementById('decryptBtn');
+  var decryptEl = document.getElementById('decryptText');
+  var cursorEl = document.getElementById('decryptCursor');
+  var target = 'STELLAR READING';
+  var chars = '!@#$%^&*<>{}[]/=+~ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  var decryptTimer = null;
+
+  function runDecrypt() {
+    decryptBtn.disabled = true;
+    cursorEl.style.display = 'inline-block';
+    var revealed = 0;
+    function step() {
+      var display = '';
+      for (var i = 0; i < target.length; i++) {
+        if (i < revealed) {
+          display += target[i];
+        } else if (target[i] === ' ') {
+          display += ' ';
+        } else {
+          display += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      decryptEl.textContent = display;
+      if (revealed < target.length) {
+        revealed++;
+        decryptTimer = setTimeout(step, 85);
+      } else {
+        setTimeout(function() {
+          cursorEl.style.display = 'none';
+          decryptBtn.disabled = false;
+        }, 600);
+      }
+    }
+    step();
+  }
+  decryptBtn.addEventListener('click', runDecrypt);
+
+  // --- Card Draw Sequence ---
+  var drawBtn = document.getElementById('drawBtn');
+  var drawCards = document.querySelectorAll('#drawStage .draw-card');
+
+  drawBtn.addEventListener('click', function() {
+    drawBtn.disabled = true;
+    // Reset
+    drawCards.forEach(function(card) {
+      card.classList.remove('drawn', 'spread-0', 'spread-1', 'spread-2');
+      card.style.transform = 'translate(-50%, -50%)';
+    });
+
+    // Phase 1: Spread cards
+    setTimeout(function() {
+      drawCards[0].classList.add('spread-0');
+      drawCards[1].classList.add('spread-1');
+      drawCards[2].classList.add('spread-2');
+    }, 100);
+
+    // Phase 2: Flip each card one by one
+    setTimeout(function() { drawCards[0].classList.add('drawn'); }, 800);
+    setTimeout(function() { drawCards[1].classList.add('drawn'); }, 1400);
+    setTimeout(function() { drawCards[2].classList.add('drawn'); }, 2000);
+
+    // Phase 3: Reset button
+    setTimeout(function() {
+      drawBtn.disabled = false;
+    }, 2800);
+  });
+
+  // --- Scroll Reveal ---
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section').forEach(function(section) {
+    if (!section.classList.contains('hero')) {
+      section.style.opacity = '0';
+      section.style.transform = 'translateY(30px)';
+      section.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+      observer.observe(section);
+    }
+  });
+
+})();
+</script>
 
 </body>
 </html>

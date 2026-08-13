@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
+import ElectricBorder from './ElectricBorder';
 import './DecayCard.css';
 
 // Images are served from public/images/ for parallel preloading.
@@ -84,7 +85,7 @@ const DecayCard = ({
       if (svgRef.current) {
         gsap.set(svgRef.current, {
           x: imgValues.imgTransforms.x,
-          y: imgValues.imgTransforms.y,
+          y: 0,
           rotateZ: imgValues.imgTransforms.rz
         });
       }
@@ -147,73 +148,59 @@ const DecayCard = ({
     };
   }, [maxDisplacement, movementBound]);
 
-  const edgeScale = Math.round(Math.min(width, height) * 0.15);
-  const cornerRadius = Math.round(Math.min(width, height) * 0.2);
-  const edgeFilterId = `${filterId}-edge-filter`;
-  const edgeMaskId = `${filterId}-edge-mask`;
-
   return (
-    <>
-      <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
-        <defs>
-          <filter id={edgeFilterId} x="-25%" y="-25%" width="150%" height="150%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" seed={seed} result="n" />
-            <feDisplacementMap in="SourceGraphic" in2="n" scale={edgeScale} xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-          <mask id={edgeMaskId} maskUnits="userSpaceOnUse" x="0" y="0" width={width} height={height}>
-            <rect width={width} height={height} rx={cornerRadius} ry={cornerRadius} fill="white" filter={`url(#${edgeFilterId})`} />
-          </mask>
-        </defs>
-      </svg>
-      <div
-        className="decay-card content"
-        style={{
-          width: `${width}px`,
-          height: `${height}px`,
-          WebkitMaskImage: `url(#${edgeMaskId})`,
-          maskImage: `url(#${edgeMaskId})`,
-        }}
-        ref={svgRef}
-        onClick={onClick}
-        role={onClick ? 'button' : undefined}
-        tabIndex={onClick ? 0 : undefined}
+    <div
+      ref={svgRef}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      style={{ width: `${width}px`, height: `${height}px`, cursor: onClick ? 'pointer' : 'default', outline: 'none' }}
     >
-      <svg viewBox="0 0 600 750" preserveAspectRatio="xMidYMid slice" className="svg">
-        <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%">
-          <feTurbulence
-            type="turbulence"
-            baseFrequency={baseFrequency}
-            numOctaves={numOctaves}
-            seed={seed}
-            stitchTiles="stitch"
-            result="turbulence1"
-          />
-          <feDisplacementMap
-            ref={displacementMapRef}
-            in="SourceGraphic"
-            in2="turbulence1"
-            scale="50"
-            xChannelSelector="R"
-            yChannelSelector="B"
-            result="displacementMap3"
-          />
-        </filter>
-        <g>
-          <image
-            href={cardImages[image] || image}
-            x="0"
-            y="0"
-            width="600"
-            height="750"
-            filter={`url(#${filterId})`}
-            preserveAspectRatio="xMidYMid slice"
-          />
-        </g>
-      </svg>
-      <div className="decay-card__watermark-mask" aria-hidden="true" />
-      <div className="card-text">{children}</div>
-      </div>
-    </>
+      <ElectricBorder color="#7C3AED" speed={1} chaos={0.12} borderRadius={16}>
+        <div
+          className="decay-card content"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+          }}
+        >
+          <svg viewBox="0 0 600 750" preserveAspectRatio="xMidYMid slice" className="svg">
+            <filter id={filterId} x="-25%" y="-25%" width="150%" height="150%">
+              <feTurbulence
+                type="turbulence"
+                baseFrequency={baseFrequency}
+                numOctaves={numOctaves}
+                seed={seed}
+                stitchTiles="stitch"
+                result="turbulence1"
+              />
+              <feDisplacementMap
+                ref={displacementMapRef}
+                in="SourceGraphic"
+                in2="turbulence1"
+                scale="50"
+                xChannelSelector="R"
+                yChannelSelector="B"
+                result="displacementMap3"
+              />
+            </filter>
+            <g>
+              <image
+                href={cardImages[image] || image}
+                x="0"
+                y="0"
+                width="600"
+                height="750"
+                filter={`url(#${filterId})`}
+                preserveAspectRatio="xMidYMid slice"
+              />
+            </g>
+          </svg>
+          <div className="decay-card__watermark-mask" aria-hidden="true" />
+          <div className="card-text">{children}</div>
+        </div>
+      </ElectricBorder>
+    </div>
   );
 };
 

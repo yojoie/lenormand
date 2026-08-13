@@ -169,20 +169,25 @@ class AsciiFilter {
 }
 
 class CanvasTxt {
-  constructor(txt, { fontSize = 200, fontFamily = 'Arial', color = '#fdf9f3' } = {}) {
+  constructor(txt, { fontSize = 200, fontFamily = 'Arial', color = '#fdf9f3', letterSpacing = 0 } = {}) {
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
     this.txt = txt;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.color = color;
+    this.letterSpacing = letterSpacing;
     this.font = `600 ${this.fontSize}px ${this.fontFamily}`;
   }
 
   resize() {
     this.context.font = this.font;
+    if ('letterSpacing' in this.context) {
+      this.context.letterSpacing = `${this.letterSpacing}px`;
+    }
     const metrics = this.context.measureText(this.txt);
-    const textWidth = Math.ceil(metrics.width) + 20;
+    const extraSpacing = this.letterSpacing > 0 ? this.letterSpacing * (this.txt.length - 1) : 0;
+    const textWidth = Math.ceil(metrics.width) + 20 + extraSpacing;
     const textHeight = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent) + 20;
     this.canvas.width = textWidth;
     this.canvas.height = textHeight;
@@ -192,6 +197,9 @@ class CanvasTxt {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = this.color;
     this.context.font = this.font;
+    if ('letterSpacing' in this.context) {
+      this.context.letterSpacing = `${this.letterSpacing}px`;
+    }
     const metrics = this.context.measureText(this.txt);
     const yPos = 10 + metrics.actualBoundingBoxAscent;
     this.context.fillText(this.txt, 10, yPos);
@@ -212,7 +220,7 @@ class CanvasTxt {
 
 class CanvAscii {
   constructor(
-    { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily },
+    { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily, letterSpacing },
     containerElem,
     width,
     height
@@ -223,6 +231,7 @@ class CanvAscii {
     this.textColor = textColor;
     this.textFontFamily = textFontFamily;
     this.planeBaseHeight = planeBaseHeight;
+    this.letterSpacing = letterSpacing;
     this.container = containerElem;
     this.width = width;
     this.height = height;
@@ -250,7 +259,8 @@ class CanvAscii {
     this.textCanvas = new CanvasTxt(this.textString, {
       fontSize: this.textFontSize,
       fontFamily: this.textFontFamily,
-      color: this.textColor
+      color: this.textColor,
+      letterSpacing: this.letterSpacing
     });
     this.textCanvas.resize();
     this.textCanvas.render();
@@ -376,6 +386,7 @@ export default function ASCIIText({
   planeBaseHeight = 8,
   textColor = '#fdf9f3',
   textFontFamily = 'IBM Plex Mono',
+  letterSpacing = 0,
   className = '',
 }) {
   const containerRef = useRef(null);
@@ -389,7 +400,7 @@ export default function ASCIIText({
 
     const createAndInit = async (container, w, h) => {
       const instance = new CanvAscii(
-        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily },
+        { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily, letterSpacing },
         container,
         w,
         h
@@ -446,7 +457,7 @@ export default function ASCIIText({
         asciiRef.current = null;
       }
     };
-  }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily]);
+  }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves, textFontFamily, letterSpacing]);
 
   return (
     <div
